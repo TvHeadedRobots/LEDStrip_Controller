@@ -9,7 +9,12 @@
 
 #define FADESPEED 5     // make this higher to slow down
 
-int mode = 0;
+const int buttonInterrupt = 0;
+
+volatile int mode = 0;
+volatile int buttonState = LOW;
+volatile long lastDebounceTime = 0;   // the last time the interrupt was triggered
+long debounceDelay = 200;    // the debounce time; decrease if quick button presses are ignored
  
 void setup() {
   Serial.begin(57600);
@@ -17,7 +22,7 @@ void setup() {
   pinMode(GREENPIN, OUTPUT);
   pinMode(BLUEPIN, OUTPUT);
   //pinMode(BUTTONPIN, INPUT);
-  attachInterrupt(0, modeButton, RISING);
+  attachInterrupt(buttonInterrupt, modeButton, FALLING);
 
 }
  
@@ -26,45 +31,65 @@ void setup() {
 void loop() {
   
   if (mode == 0) {
-    Serial.print("mode: ");
-    Serial.println(mode);
+    //Serial.print("mode: ");
+    //Serial.println(mode);
     brightWhiteLight();
   }
   
   else {
-    Serial.print("mode: ");
-    Serial.println(mode);
-    colorFade();
-  } 
+    //Serial.print("mode: ");
+    //Serial.println(mode);
+    sunLight();
+  }
+  
+  Serial.print("mode: ");
+  Serial.println(mode);
 }
 
 //
 void modeButton() {
+ long currentTime = millis();
   
-  // there are 2 modes
-  if (mode < 1) {
-    mode++;
-  }
-  else
-  {
-    mode = 0;
-  }
+ if ((currentTime - lastDebounceTime) > debounceDelay)
+ {
+   lastDebounceTime = currentTime;
   
+    // there are 2 modes
+    if (mode < 1) {
+      mode++;
+    }
+    else
+    {
+      mode = 0;
+    }
+  
+    //Serial.print("mode: ");
+    //Serial.println(mode);   
+ }  
 }
 
 void brightWhiteLight()  {
 // super bright white
-  Serial.print("mode: ");
-  Serial.println(mode);
+  //Serial.print("mode: ");
+  //Serial.println(mode);
   analogWrite(REDPIN, 255);
   analogWrite(GREENPIN, 255);
   analogWrite(BLUEPIN, 255);
 }
 
+void sunLight()  {
+// dim white
+  //Serial.print("mode: ");
+  //Serial.println(mode);
+  analogWrite(REDPIN, 192);
+  analogWrite(GREENPIN, 191);
+  analogWrite(BLUEPIN, 173);
+}
+
 void dimWhiteLight()  {
 // dim white
-  Serial.print("mode: ");
-  Serial.println(mode);
+  //Serial.print("mode: ");
+  //Serial.println(mode);
   analogWrite(REDPIN, 127);
   analogWrite(GREENPIN, 127);
   analogWrite(BLUEPIN, 127);
@@ -74,8 +99,8 @@ void colorFade() {
 // fade between colors
   int r, g, b;
 
-  Serial.print("mode: ");
-  Serial.println(mode);
+  //Serial.print("mode: ");
+  //Serial.println(mode);
 
   // fade from blue to violet
   for (r = 0; r < 256; r++) { 
