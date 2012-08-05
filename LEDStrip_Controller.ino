@@ -36,12 +36,17 @@ void loop() {
     brightWhiteLight();
   }
   
-  else {
+  else if (mode == 1) {
     //Serial.print("mode: ");
     //Serial.println(mode);
     sunLight();
   }
   
+  else {
+    //Serial.print("mode: ");
+    //Serial.println(mode);
+    colorFade();
+  }  
   Serial.print("mode: ");
   Serial.println(mode);
 }
@@ -55,7 +60,7 @@ void modeButton() {
    lastDebounceTime = currentTime;
   
     // there are 2 modes
-    if (mode < 1) {
+    if (mode < 2) {
       mode++;
     }
     else
